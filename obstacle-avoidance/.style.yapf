@@ -1,0 +1,9 @@
+[style]
+based_on_style = pep8
+spaces_before_comment = 4
+split_before_logical_operator = true
+column_limit = 120
+indent_dictionary_value = true
+split_before_first_argument = false
+split_all_comma_separated_values = false
+split_all_top_level_comma_separated_values = true

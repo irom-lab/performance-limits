@@ -1,0 +1,19 @@
+name: lbi-cuda
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python==3.9
+  - numpy
+  - scipy
+  - jupyter
+  - matplotlib
+  - pre-commit
+  - yapf
+  - pip
+  - tqdm
+  - pip:
+    - jax[cuda]
+    - --find-links "https://storage.googleapis.com/jax-releases/jax_releases.html"
+variables:
+  MAMBA_NO_BANNER: 1

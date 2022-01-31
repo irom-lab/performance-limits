@@ -1,0 +1,18 @@
+name: lbi
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python==3.9
+  - numpy
+  - scipy
+  - jupyter
+  - matplotlib
+  - jax==0.2.10
+  - jaxlib==0.1.61
+  - pre-commit
+  - yapf
+  - tqdm
+variables:
+  MAMBA_NO_BANNER: 1
+  JAX_PLATFORM_NAME: "cpu"
