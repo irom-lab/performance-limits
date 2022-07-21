@@ -30,8 +30,9 @@ Run the following to generate bounds and POMDP values:
 ```
 python generate_results_f.py --function f
 ```
-List of functions:
+List of available functions:
 Kullback_Leibler
 Negative_Log
-Total Variation
+Total_Variation
+Chi_Squared
 

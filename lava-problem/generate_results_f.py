@@ -25,7 +25,7 @@ def main(raw_args=None):
 
 	args = parser.parse_args(raw_args)
 	problem = args.problem
-
+	func = args.function
 
 	##########################################################################
 	# Load code associated with chosen problem
@@ -40,12 +40,7 @@ def main(raw_args=None):
 	##########################################################################
 
 	# Parse function arguments
-
-	f = eval(args.function)
-
-
-
-
+	f = eval(func)
 
 	# Different rewards for being in a non-lava/goal state
 	reward_xs = np.array([0.1]) 
@@ -96,7 +91,7 @@ def main(raw_args=None):
 
 
 	# Save results
-	np.savez(problem+"_results_f.npz", reward_xs=reward_xs, p_correct_vals=p_correct_vals, opt_values=opt_values, bounds=bounds_f_inverse)
+	np.savez(problem+"_"+func+"_results_f.npz", reward_xs=reward_xs, p_correct_vals=p_correct_vals, opt_values=opt_values, bounds=bounds_f_inverse)
 
 
 #################################################################
