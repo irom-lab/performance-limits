@@ -29,7 +29,7 @@ def main(raw_args=None):
 
 	# Plot
 	fig, ax = plt.subplots()
-	ax.plot(p_correct_vals, opt_values, '*--', color='#007FFF', label='POMDP', linewidth=0.5)
+	ax.plot(p_correct_vals, opt_values, '*--', label='POMDP', linewidth=0.5)
 
 	for j in npz_name:
 		data = np.load(j)

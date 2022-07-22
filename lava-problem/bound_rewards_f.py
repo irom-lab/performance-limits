@@ -30,8 +30,7 @@ def f_inverse(f,q,c):
     prob = cvx.Problem(cvx.Maximize(p_ber[0]), constraints)
 
     # Solve problem
-	## qcp=True is added for quasiconvex functions
-    prob.solve(qcp=True, verbose=False, solver=cvx.SCS) # solver=cvx.MOSEK
+    prob.solve(verbose=False, solver=cvx.SCS) # solver=cvx.MOSEK
     
     return p_ber.value[0]
 
