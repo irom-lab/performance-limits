@@ -121,7 +121,8 @@ def compute_bound_H(f, nx, nu, ny, H, p0, px, px_x, py_x, R, u_seqs_all):
 			for ii in range(0,ny):
 				for jj in range(0,nx):
 					if (np.abs(pyx_u_seq[ii,jj]) > 1e-5):
-						I = I + pyx_u_seq[ii,jj]*np.log(pyx_u_seq[ii,jj]/(py_u_seq[ii]*px_u_seq[jj]))
+						#I = I + pyx_u_seq[ii,jj]*np.log(pyx_u_seq[ii,jj]/(py_u_seq[ii]*px_u_seq[jj]))
+						I = I + (py_u_seq[ii]*px_u_seq[jj])*f(pyx_u_seq[ii,jj]/(py_u_seq[ii]*px_u_seq[jj]))
 
 
 			##############################################################################
@@ -172,7 +173,7 @@ def compute_bound_H(f, nx, nu, ny, H, p0, px, px_x, py_x, R, u_seqs_all):
 	for ii in range(0,ny):
 		for jj in range(0,nx):
 			if (np.abs(pyx_0[ii,jj]) > 1e-5):
-				I = I + pyx_0[ii,jj]*np.log(pyx_0[ii,jj]/(py_0[ii]*px_0[jj]))
+				I = I + (py_0[ii]*px_0[jj])*f(pyx_0[ii,jj]/(py_0[ii]*px_0[jj]))
 
 	##############################################################################
 	# Compute R + R_next

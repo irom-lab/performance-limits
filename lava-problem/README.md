@@ -31,11 +31,11 @@ Run the following to generate bounds and POMDP values:
 python generate_results_f.py --function f
 ```
 List of available functions:
-Kullback_Leibler
-Negative_Log
-Total_Variation
-Chi_Squared
-Jensen_Shannon
-Squared_Hellinger_Distance
-Neyman_Chi_Square
+- Kullback_Leibler
+- Negative_Log
+- Total_Variation
+- Chi_Squared
+- Jensen_Shannon
+- Squared_Hellinger_Distance
+- Neyman_Chi_Square
 

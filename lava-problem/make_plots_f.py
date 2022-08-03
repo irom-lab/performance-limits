@@ -16,16 +16,19 @@ def main(raw_args=None):
 	problem = args.problem
 
 	# Load all npz filenames
-	fname = os.listdir()
+	fname = os.listdir('results')
 	npz_name = []
 	for i in fname:
-		if i[-1] == 'z':
+		if i[-5] == 'f':
 			npz_name.append(i)
+
+	print (npz_name)
+
 	
-	# Load data
-	data = np.load(npz_name[0])
-	p_correct_vals = data['p_correct_vals']
-	opt_values = data['opt_values']
+	# Load x-axis and POMDP data
+	opt_data = np.load(problem + "_optimal_results.npz")
+	p_correct_vals = opt_data['p_correct_vals']
+	opt_values = opt_data['opt_values']
 
 	# Plot
 	fig, ax = plt.subplots()
@@ -34,7 +37,7 @@ def main(raw_args=None):
 	for j in npz_name:
 		data = np.load(j)
 		bounds = data['bounds']
-		ax.plot(p_correct_vals, bounds, 'o--', label=j[13:-14], linewidth=1)
+		ax.plot(p_correct_vals, bounds, 'o--', label=j[13:-14], linewidth=1) # function name part -- dependent on file naming
 
 	plt.xlabel('$p_{correct}$', fontsize=15)
 	plt.ylabel('Cumulative reward', fontsize=15)
