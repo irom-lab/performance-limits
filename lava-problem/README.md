@@ -37,5 +37,9 @@ List of available functions:
 - Chi_Squared
 - Jensen_Shannon
 - Squared_Hellinger_Distance
-- Neyman_Chi_Square
+- Neyman_Chi_Squared
 
+To run all functions and make plots, use
+```
+./run.sh
+```

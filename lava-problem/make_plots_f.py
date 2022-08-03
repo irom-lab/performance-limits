@@ -21,12 +21,9 @@ def main(raw_args=None):
 	for i in fname:
 		if i[-5] == 'f':
 			npz_name.append(i)
-
-	print (npz_name)
-
 	
 	# Load x-axis and POMDP data
-	opt_data = np.load(problem + "_optimal_results.npz")
+	opt_data = np.load("results/"+problem + "_optimal_results.npz")
 	p_correct_vals = opt_data['p_correct_vals']
 	opt_values = opt_data['opt_values']
 
@@ -35,7 +32,7 @@ def main(raw_args=None):
 	ax.plot(p_correct_vals, opt_values, '*--', label='POMDP', linewidth=0.5)
 
 	for j in npz_name:
-		data = np.load(j)
+		data = np.load("results/"+j)
 		bounds = data['bounds']
 		ax.plot(p_correct_vals, bounds, 'o--', label=j[13:-14], linewidth=1) # function name part -- dependent on file naming
 

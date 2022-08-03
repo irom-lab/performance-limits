@@ -82,7 +82,7 @@ def main(raw_args=None):
 				################################################################################
 
 				# Save results
-				path = '/results'
+				path = 'results'
 				filename = problem+"_"+func+"_results_f.npz"
 				np.savez(os.path.join(path,filename), reward_xs=reward_xs, p_correct_vals=p_correct_vals, bounds=bounds_f_inverse)
 
@@ -112,7 +112,7 @@ def main(raw_args=None):
 				###############################################################################
 
 				# Save results
-				path = '/results'
+				path = 'results'
 				filename = problem+"_optimal_results.npz",
 				np.savez(problem+"_optimal_results.npz", reward_xs=reward_xs, p_correct_vals=p_correct_vals, opt_values=opt_values)
 
