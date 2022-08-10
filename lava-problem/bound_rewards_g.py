@@ -10,12 +10,19 @@ import cvxpy as cvx
 import argparse	
 import mosek
 
-def f_divergence(f,p,q):
-    div = cvx.multiply(q,f(p/q))
+def g(x,c_vec,func_list):
+    # c and func_list should have matching dimensions
+    y = 0
+    for i in range (len(func_list)):
+        y += c_vec[i]*eval(func_list[i])(x)
+    return y
+
+def f_divergence(g,c_vec,func_list,p,q):
+    div = cvx.multiply(q,g(p/q,c_vec,func_list))
 
     return div
     
-def f_inverse(f,q,c):
+def f_inverse(g,c_vec,func_list,q,c):
 
     '''
     Compute f-inverse using Relative Entropy Programming
@@ -24,7 +31,7 @@ def f_inverse(f,q,c):
     p_ber = cvx.Variable(2)
     q_ber = np.array([q,1-q])
 
-    b = f_divergence(f,p_ber,q_ber)
+    b = f_divergence(g,c_vec,func_list,p_ber,q_ber)
     
     constraints = [c >= cvx.sum(b), 0 <= p_ber[0], p_ber[0] <=1, p_ber[1] == 1.0-p_ber[0]]
 
@@ -35,7 +42,7 @@ def f_inverse(f,q,c):
     
     return p_ber.value[0]
 
-def bound_scaled(f, ab, I, R_plus_R_next, px_u_seq): 
+def bound_scaled(g,c_vec,func_list, ab, I, R_plus_R_next, px_u_seq): 
 	'''
 	Compute bound with scaling of rewards.
 	'''
@@ -49,52 +56,14 @@ def bound_scaled(f, ab, I, R_plus_R_next, px_u_seq):
 	Rt_perp = min(1-1e-4, max(1e-4, Rt_perp))
 
 	# Compute bound
-	bound = f_inverse(f, Rt_perp, I)
+	bound = f_inverse(g,c_vec,func_list, Rt_perp, I)
 
 	# Scale it back
 	bound = (1/a)*(b+bound)
 
 	return bound
 
-'''
-def bound_opt_scaling(f, I, R_plus_R_next, min_R, max_R, px_u_seq, initial_guess):
-	
-	## Compute optimal scaling for bound. 
-	
-
-	# Constraints
-	A = np.array([[min_R,-1], [max_R,-1],[1,0]])
-	lb = np.array([1e-5, 1e-5, 1e-3])
-	ub = np.array([1.0-1e-5, 1.0-1e-5, np.inf])
-	cons = optimize.LinearConstraint(A, lb, ub)
-
-	res = optimize.minimize(bound_scaled, initial_guess, args=(f, I, R_plus_R_next, px_u_seq), constraints=cons)
-
-	if (not res.success): # If optimizer failed, try different optimizer (slower, but sometimes better)
-		res = optimize.minimize(bound_scaled, initial_guess, args=(f, I, R_plus_R_next, px_u_seq), constraints=cons, method='trust-constr')
-
-	if (not res.success):
-		print("Optimization error.")
-		ipy.embed()
-
-	bound = res.fun
-
-	return bound
-'''
-'''
-def f_inverse_bound(f, I, R_plus_R_next, px_u_seq): 
-	## Version of bound with no scaling
-
-	R_u = px_u_seq @ (R_plus_R_next) # Expected reward-to-go of each action (scaled to be in [0,1])
-	Rt_perp = np.max(R_u)
-	Rt_perp = min(1-1e-4, max(1e-4, Rt_perp))
-
-	# Compute bound
-	bound = f_inverse(f, Rt_perp, I)
-
-	return bound
-'''
-def compute_bound_H(f, nx, nu, ny, H, p0, px, px_x, py_x, R, u_seqs_all):
+def compute_bound_H(g,c_vec,func_list, nx, nu, ny, H, p0, px, px_x, py_x, R, u_seqs_all):
 	'''
 	Compute bound up to horizon H.
 	'''
@@ -123,7 +92,7 @@ def compute_bound_H(f, nx, nu, ny, H, p0, px, px_x, py_x, R, u_seqs_all):
 				for jj in range(0,nx):
 					if (np.abs(pyx_u_seq[ii,jj]) > 1e-5):
 						#I = I + pyx_u_seq[ii,jj]*np.log(pyx_u_seq[ii,jj]/(py_u_seq[ii]*px_u_seq[jj]))
-						I = I + (py_u_seq[ii]*px_u_seq[jj])*f(pyx_u_seq[ii,jj]/(py_u_seq[ii]*px_u_seq[jj]))
+						I = I + (py_u_seq[ii]*px_u_seq[jj])*g(pyx_u_seq[ii,jj]/(py_u_seq[ii]*px_u_seq[jj]),c_vec,func_list)
 
 
 			##############################################################################
@@ -145,7 +114,7 @@ def compute_bound_H(f, nx, nu, ny, H, p0, px, px_x, py_x, R, u_seqs_all):
 				a_scale = 1/(max_R-min_R); b_scale = a_scale*min_R 
 				ab = [a_scale, b_scale]
 				# Compute bound
-				bound = bound_scaled(f, ab, I, R_plus_R_next, px_u_seq)
+				bound = bound_scaled(g,c_vec,func_list, ab, I, R_plus_R_next, px_u_seq)
 
 				# # Version with optimal scaling
 				# initial_guess = np.array([a_scale, b_scale])
@@ -174,7 +143,7 @@ def compute_bound_H(f, nx, nu, ny, H, p0, px, px_x, py_x, R, u_seqs_all):
 	for ii in range(0,ny):
 		for jj in range(0,nx):
 			if (np.abs(pyx_0[ii,jj]) > 1e-5):
-				I = I + (py_0[ii]*px_0[jj])*f(pyx_0[ii,jj]/(py_0[ii]*px_0[jj]))
+				I = I + (py_0[ii]*px_0[jj])*g(pyx_0[ii,jj]/(py_0[ii]*px_0[jj]),c_vec,func_list)
 
 	##############################################################################
 	# Compute R + R_next
@@ -193,7 +162,7 @@ def compute_bound_H(f, nx, nu, ny, H, p0, px, px_x, py_x, R, u_seqs_all):
 		a_scale = 1/(max_R-min_R); b_scale = a_scale*min_R 
 		ab = [a_scale, b_scale]
 		# Compute bound
-		bound = bound_scaled(f, ab, I, R_plus_R_next, px_0)
+		bound = bound_scaled(g,c_vec,func_list, ab, I, R_plus_R_next, px_0)
 
 		# # Version with optimal scaling
 		# initial_guess = np.array([a_scale, b_scale])
@@ -204,7 +173,7 @@ def compute_bound_H(f, nx, nu, ny, H, p0, px, px_x, py_x, R, u_seqs_all):
 
 	return bound
 
-def compute_bound(f, nx, nu, ny, T, p0, px_x, py_x, R, R0_expected):
+def compute_bound(g,c_vec,func_list, nx, nu, ny, T, p0, px_x, py_x, R, R0_expected):
 	'''
 	Main function for computing upper bound on expected reward.
 	'''
@@ -235,7 +204,7 @@ def compute_bound(f, nx, nu, ny, T, p0, px_x, py_x, R, R0_expected):
 	bound_best = np.inf # Keeps track of upper bounds using each horizon
 	for H in range(1,T+1): # for horizon H = 1,...T
 		# Compute bound for different horizons. Use bound from H to get estimate for bound with H+1.
-		bound = compute_bound_H(f, nx, nu, ny, H, p0, px, px_x, py_x, R, u_seqs_all)
+		bound = compute_bound_H(g,c_vec,func_list, nx, nu, ny, H, p0, px, px_x, py_x, R, u_seqs_all)
 		bound = bound + (T-H) # Add possible rewars from H to T
 		bound = bound + R0_expected # Add in expected reward from initial state
 	

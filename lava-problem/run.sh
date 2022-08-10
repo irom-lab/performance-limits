@@ -16,6 +16,6 @@ do
     python generate_results_f.py --function ${func}
 done
 
-python generate_results_f.py --POMDP Y
+#python generate_results_f.py --POMDP Y
 
 python make_plots_f.py

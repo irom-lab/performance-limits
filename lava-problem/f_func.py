@@ -1,6 +1,9 @@
 import numpy as np
 import cvxpy as cvx
 
+#f(x) convex
+#f(1) = 0
+
 def Kullback_Leibler(x):
     y = -cvx.entr(x) #x*log(x)
     return y
@@ -30,8 +33,4 @@ def Neyman_Chi_Squared(x):
     y = cvx.inv_pos(x)-1
     return y
 
-# CVXPY Doesn't recognize following functions as convex
-def Le_Cam_Distance(x):
-    y = 1/(x+1)-1/2
-    return y
 

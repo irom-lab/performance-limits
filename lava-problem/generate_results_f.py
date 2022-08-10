@@ -15,6 +15,7 @@ from bound_rewards_f import compute_bound as compute_bound
 from f_func import *
 import time
 import os
+import mosek
 
 def main(raw_args=None):
 
