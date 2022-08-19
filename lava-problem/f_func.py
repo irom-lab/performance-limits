@@ -33,4 +33,14 @@ def Neyman_Chi_Squared(x):
     y = cvx.inv_pos(x)-1
     return y
 
+def logistic(x):
+    y = cvx.logistic(x)-cvx.logistic(1)
+    return y
 
+def expo(x):
+    y = cvx.exp(x)-cvx.exp(1)
+    return y
+
+def logg(x):
+    y = cvx.loggamma(x)-cvx.loggamma(1)
+    return y

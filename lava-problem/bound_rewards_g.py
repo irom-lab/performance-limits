@@ -9,6 +9,7 @@ import IPython as ipy
 import cvxpy as cvx
 import argparse	
 import mosek
+import gurobipy
 
 def g(x,c_vec,func_list):
     # c and func_list should have matching dimensions
@@ -38,7 +39,7 @@ def f_inverse(g,c_vec,func_list,q,c):
     prob = cvx.Problem(cvx.Maximize(p_ber[0]), constraints)
 
     # Solve problem
-    prob.solve(verbose=False, solver=cvx.MOSEK) # solver=cvx.MOSEK
+    prob.solve(solver=cvx.MOSEK, verbose=False) # solver=cvx.MOSEK
     
     return p_ber.value[0]
 
