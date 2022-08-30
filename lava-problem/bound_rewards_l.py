@@ -9,21 +9,44 @@ import IPython as ipy
 import cvxpy as cvx
 import argparse	
 import mosek
-import gurobipy
 
-def g(x,c_vec,func_list):
-    # c and func_list should have matching dimensions
-    y = 0
-    for i in range (len(func_list)):
-        y += c_vec[i]*eval(func_list[i])(x)
-    return y
+# def l(x,n,svec):
+#     # x is the independent variable
+#     # n is the number of slices
+#     # svec is the slope vector with dimension (n,1), starting from 0 to 1 forward
+#     y = 0
+#     for i in range(n):
+#         y += ((1-i/n>=x) & (x>=1-(1+i)/n))*svec[-1-i]*(x-(1-i/n)) + ((1-i/n<x) | (x<1-(1+i)/n))*svec[-1-i]*(-1/n)    
+#     return y
 
-def f_divergence(g,c_vec,func_list,p,q):
-    div = cvx.multiply(q,g(p/q,c_vec,func_list))
+# def l(x,n,svec):
+#     # x is the independent variable
+#     # n is the number of slices
+#     # svec is the slope vector with dimension (n,1), starting from 1 to 0 backwards
+#     intercept = [0]*n
+#     output = [0]*n
+#     for i in range(n):
+#         intercept[i] = -svec[i]/n
+#         output[i] = svec[i]*(x-1+i/n)+sum(intercept[0:i])
+#     return cvx.max(cvx.vstack(output),axis=0)
 
+def l(x,n,svec):
+    # x is the independent variable
+    # n is the number of slices
+    # svec is the slope vector with dimension (n,1), starting from 1 to 0 backwards
+    intercept = [-s/n for s in svec]
+    output = [0]*(2*n)
+    for i in range(n):
+        output[i] = svec[i]*(x-(i+1)/n)+sum(intercept[(i+1):n])
+    for i in range(n,2*n):
+        output[i] = svec[i]*(x-i/n)-sum(intercept[n:i])
+    return cvx.max(cvx.vstack(output),axis=0)
+
+def f_divergence(l,n,svec,p,q):
+    div = cvx.multiply(q,l(p/q,n,svec))
     return div
     
-def f_inverse(g,c_vec,func_list,q,c):
+def f_inverse(l,n,svec,q,c):
 
     '''
     Compute f-inverse using Relative Entropy Programming
@@ -32,18 +55,18 @@ def f_inverse(g,c_vec,func_list,q,c):
     p_ber = cvx.Variable(2)
     q_ber = np.array([q,1-q])
 
-    b = f_divergence(g,c_vec,func_list,p_ber,q_ber)
+    b = f_divergence(l,n,svec,p_ber,q_ber)
     
     constraints = [c >= cvx.sum(b), 0 <= p_ber[0], p_ber[0] <=1, p_ber[1] == 1.0-p_ber[0]]
 
     prob = cvx.Problem(cvx.Maximize(p_ber[0]), constraints)
 
     # Solve problem
-    prob.solve(solver=cvx.MOSEK, verbose=True) # solver=cvx.MOSEK
+    prob.solve(solver=cvx.MOSEK, verbose=False) # solver=cvx.MOSEK
     
     return p_ber.value[0]
 
-def bound_scaled(g,c_vec,func_list, ab, I, R_plus_R_next, px_u_seq): 
+def bound_scaled(l,n,svec, ab, I, R_plus_R_next, px_u_seq): 
 	'''
 	Compute bound with scaling of rewards.
 	'''
@@ -57,14 +80,14 @@ def bound_scaled(g,c_vec,func_list, ab, I, R_plus_R_next, px_u_seq):
 	Rt_perp = min(1-1e-4, max(1e-4, Rt_perp))
 
 	# Compute bound
-	bound = f_inverse(g,c_vec,func_list, Rt_perp, I)
+	bound = f_inverse(l,n,svec, Rt_perp, I)
 
 	# Scale it back
 	bound = (1/a)*(b+bound)
 
 	return bound
 
-def compute_bound_H(g,c_vec,func_list, nx, nu, ny, H, p0, px, px_x, py_x, R, u_seqs_all):
+def compute_bound_H(l,n,svec, nx, nu, ny, H, p0, px, px_x, py_x, R, u_seqs_all):
 	'''
 	Compute bound up to horizon H.
 	'''
@@ -93,7 +116,7 @@ def compute_bound_H(g,c_vec,func_list, nx, nu, ny, H, p0, px, px_x, py_x, R, u_s
 				for jj in range(0,nx):
 					if (np.abs(pyx_u_seq[ii,jj]) > 1e-5):
 						#I = I + pyx_u_seq[ii,jj]*np.log(pyx_u_seq[ii,jj]/(py_u_seq[ii]*px_u_seq[jj]))
-						I = I + (py_u_seq[ii]*px_u_seq[jj])*g(pyx_u_seq[ii,jj]/(py_u_seq[ii]*px_u_seq[jj]),c_vec,func_list)
+						I = I + (py_u_seq[ii]*px_u_seq[jj])*l(pyx_u_seq[ii,jj]/(py_u_seq[ii]*px_u_seq[jj]),n,svec)
 
 
 			##############################################################################
@@ -115,7 +138,7 @@ def compute_bound_H(g,c_vec,func_list, nx, nu, ny, H, p0, px, px_x, py_x, R, u_s
 				a_scale = 1/(max_R-min_R); b_scale = a_scale*min_R 
 				ab = [a_scale, b_scale]
 				# Compute bound
-				bound = bound_scaled(g,c_vec,func_list, ab, I, R_plus_R_next, px_u_seq)
+				bound = bound_scaled(l,n,svec, ab, I, R_plus_R_next, px_u_seq)
 
 				# # Version with optimal scaling
 				# initial_guess = np.array([a_scale, b_scale])
@@ -144,7 +167,7 @@ def compute_bound_H(g,c_vec,func_list, nx, nu, ny, H, p0, px, px_x, py_x, R, u_s
 	for ii in range(0,ny):
 		for jj in range(0,nx):
 			if (np.abs(pyx_0[ii,jj]) > 1e-5):
-				I = I + (py_0[ii]*px_0[jj])*g(pyx_0[ii,jj]/(py_0[ii]*px_0[jj]),c_vec,func_list)
+				I = I + (py_0[ii]*px_0[jj])*l(pyx_0[ii,jj]/(py_0[ii]*px_0[jj]),n,svec)
 
 	##############################################################################
 	# Compute R + R_next
@@ -163,7 +186,7 @@ def compute_bound_H(g,c_vec,func_list, nx, nu, ny, H, p0, px, px_x, py_x, R, u_s
 		a_scale = 1/(max_R-min_R); b_scale = a_scale*min_R 
 		ab = [a_scale, b_scale]
 		# Compute bound
-		bound = bound_scaled(g,c_vec,func_list, ab, I, R_plus_R_next, px_0)
+		bound = bound_scaled(l,n,svec, ab, I, R_plus_R_next, px_0)
 
 		# # Version with optimal scaling
 		# initial_guess = np.array([a_scale, b_scale])
@@ -174,7 +197,7 @@ def compute_bound_H(g,c_vec,func_list, nx, nu, ny, H, p0, px, px_x, py_x, R, u_s
 
 	return bound
 
-def compute_bound(g,c_vec,func_list, nx, nu, ny, T, p0, px_x, py_x, R, R0_expected):
+def compute_bound(l,n,svec, nx, nu, ny, T, p0, px_x, py_x, R, R0_expected):
 	'''
 	Main function for computing upper bound on expected reward.
 	'''
@@ -205,7 +228,7 @@ def compute_bound(g,c_vec,func_list, nx, nu, ny, T, p0, px_x, py_x, R, R0_expect
 	bound_best = np.inf # Keeps track of upper bounds using each horizon
 	for H in range(1,T+1): # for horizon H = 1,...T
 		# Compute bound for different horizons. Use bound from H to get estimate for bound with H+1.
-		bound = compute_bound_H(g,c_vec,func_list, nx, nu, ny, H, p0, px, px_x, py_x, R, u_seqs_all)
+		bound = compute_bound_H(l,n,svec, nx, nu, ny, H, p0, px, px_x, py_x, R, u_seqs_all)
 		bound = bound + (T-H) # Add possible rewars from H to T
 		bound = bound + R0_expected # Add in expected reward from initial state
 	

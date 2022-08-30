@@ -44,3 +44,5 @@ def expo(x):
 def logg(x):
     y = cvx.loggamma(x)-cvx.loggamma(1)
     return y
+
+    

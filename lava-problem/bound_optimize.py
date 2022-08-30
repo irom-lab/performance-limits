@@ -73,6 +73,7 @@ def main(raw_args=None):
     plt.ylabel('Cumulative reward', fontsize=15)
     plt.legend(fontsize=12, loc='lower right')
     plt.ylim([0, 5.01])
+    plt.savefig('Tight_Bounds_vs_KL_5.svg', dpi=200)
     plt.show() 
 
 #################################################################
