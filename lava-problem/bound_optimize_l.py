@@ -4,12 +4,10 @@ from lava_problem import main as lava_problem
 import scipy.optimize as optimize
 from dask.distributed import Client
 import matplotlib.pyplot as plt
-import IPython as ipy
 
 def main(raw_args=None):
-    n = 2 # 50 slices on interval [0,1]
-    svec = np.zeros(n) # set initial guesses to be 0
-
+    n = 2 # n slices on interval [0,1]
+    svec = [0]*(2*n) # set initial guesses to be 0
 
     # Setups for lava problem
     p_correct_vals = np.linspace(0.01, 0.99, 20) 
@@ -21,7 +19,7 @@ def main(raw_args=None):
     def con(svec):
         out = []
         for i in range(len(svec)-1):
-            out.append(svec[i]-svec[i+1])
+            out.append(svec[i+1]-svec[i])
         return out
         
     cons = [{'type':'ineq','fun': con}]
@@ -40,15 +38,19 @@ def main(raw_args=None):
         return[res.x, res.fun]
     
     client = Client(n_workers = 4)
-    args = [(i) for i in p_correct_vals]
-    futures = []
-    for p in args:
-        future = client.submit(minimize,p)
-        futures.append(future)
-    results = client.gather(futures)
-    vals = [results[i,1] for i in range(20)]
-    np.savetxt('results.txt',results)
+    future = client.submit(minimize,p_correct_vals[7])
+    # args = [(i) for i in p_correct_vals]
+    # futures = []
+    # for p in args:
+    #     future = client.submit(minimize,p)
+    #     futures.append(future)
+    # results = client.gather(futures)
+    # vals = [results[i,1] for i in range(20)]
+    # np.savetxt('results.txt',results)
+    val = future.result()
     client.close()
+
+
     # Plot
     # Load x-axis and POMDP data
     opt_data = np.load("results/lava_problem_optimal_results.npz")
@@ -57,13 +59,14 @@ def main(raw_args=None):
 
     fig, ax = plt.subplots()
     ax.plot(p_correct_vals, opt_values, '*--', label='POMDP', linewidth=0.5)
-    ax.plot(p_correct_vals,vals,'o--', label='Tightest Bound', linewidth=1)
+    # ax.plot(p_correct_vals,vals,'o--', label='PL', linewidth=1)
+    ax.plot(p_correct_vals[7],val,'o--', label='PL', linewidth=1)
 
     plt.xlabel('$p_{correct}$', fontsize=15)
     plt.ylabel('Cumulative reward', fontsize=15)
     plt.legend(fontsize=12, loc='lower right')
     plt.ylim([0, 5.01])
-    plt.savefig('PL_n=5.svg', dpi=200)
+    plt.savefig('PL_n=2.svg', dpi=200)
     plt.show() 
 
 #################################################################
