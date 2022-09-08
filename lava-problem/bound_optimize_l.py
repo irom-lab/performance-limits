@@ -2,12 +2,11 @@ import numpy as np
 from bound_rewards_l import *
 from lava_problem import main as lava_problem
 import scipy.optimize as optimize
-from dask.distributed import Client
 import matplotlib.pyplot as plt
 
 def main(raw_args=None):
     n = 2 # n slices on interval [0,1]
-    svec = [0]*(2*n) # set initial guesses to be 0
+    s0 = [0]*(2*n) # set initial guesses to be 0
 
     # Setups for lava problem
     p_correct_vals = np.linspace(0.01, 0.99, 20) 
@@ -33,23 +32,22 @@ def main(raw_args=None):
         bound_f_inverse = compute_bound(l,n,svec, nx, nu, ny, T, p0, px_x, py_x, R, R0_expected) 
         return bound_f_inverse
 
-    def minimize(p_correct):
+    def minimize(p_correct,svec):
         res = optimize.minimize(bounds,svec,method = 'trust-constr', constraints = cons, callback = callbackF, args = (p_correct), options={'disp':True})
         return[res.x, res.fun]
     
-    client = Client(n_workers = 4)
-    future = client.submit(minimize,p_correct_vals[7])
-    # args = [(i) for i in p_correct_vals]
-    # futures = []
-    # for p in args:
-    #     future = client.submit(minimize,p)
-    #     futures.append(future)
-    # results = client.gather(futures)
-    # vals = [results[i,1] for i in range(20)]
-    # np.savetxt('results.txt',results)
-    val = future.result()
-    client.close()
+    tr = 20
+    opt_results = []
+    s0_guesses = [s0]
+    opt_results.append(minimize(p_correct_vals[0],s0)) # first iteration
+    s0_guesses.append(opt_results[0][0])
 
+    for i in range(1,tr):
+        opt_result = minimize(p_correct_vals[i],s0_guesses[-1])
+        opt_results.append(opt_result)
+
+    np.savetxt('results.txt',opt_results)
+    val = [opt_results[i,1] for i in range(20)]
 
     # Plot
     # Load x-axis and POMDP data
