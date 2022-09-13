@@ -46,8 +46,8 @@ def main(raw_args=None):
         opt_result = minimize(p_correct_vals[i],s0_guesses[-1])
         opt_results.append(opt_result)
 
-    vec = [opt_results[i,0] for i in range(20)]
-    val = [opt_results[i,1] for i in range(20)]
+    vec = [opt_results[i][0] for i in range(20)]
+    val = [opt_results[i][1] for i in range(20)]
 
     np.savez('results.npz',slopes=vec,bound_results=val)
 
