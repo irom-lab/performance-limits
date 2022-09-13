@@ -46,19 +46,23 @@ def main(raw_args=None):
         opt_result = minimize(p_correct_vals[i],s0_guesses[-1])
         opt_results.append(opt_result)
 
-    np.savetxt('results.txt',opt_results)
+    vec = [opt_results[i,0] for i in range(20)]
     val = [opt_results[i,1] for i in range(20)]
+
+    np.savez('results.npz',slopes=vec,bound_results=val)
 
     # Plot
     # Load x-axis and POMDP data
     opt_data = np.load("results/lava_problem_optimal_results.npz")
-    p_correct_vals = opt_data['p_correct_vals']
     opt_values = opt_data['opt_values']
+
+    tight_data = np.load("tightest_bounds.npz")
+    tight_values = tight_data['bounds']
 
     fig, ax = plt.subplots()
     ax.plot(p_correct_vals, opt_values, '*--', label='POMDP', linewidth=0.5)
-    # ax.plot(p_correct_vals,vals,'o--', label='PL', linewidth=1)
-    ax.plot(p_correct_vals[7],val,'o--', label='PL', linewidth=1)
+    ax.plot(p_correct_vals, tight_values, 'o--', label='Tightest', linewidth=1)
+    ax.plot(p_correct_vals, val,'o--', label='PL', linewidth=1)
 
     plt.xlabel('$p_{correct}$', fontsize=15)
     plt.ylabel('Cumulative reward', fontsize=15)
