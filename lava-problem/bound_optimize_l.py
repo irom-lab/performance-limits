@@ -5,7 +5,7 @@ import scipy.optimize as optimize
 import matplotlib.pyplot as plt
 
 def main(raw_args=None):
-    n = 2 # n slices on interval [0,1]
+    n = 5 # n slices on interval [0,1]
     s0 = [0]*(2*n) # set initial guesses to be 0
 
     # Setups for lava problem
@@ -49,7 +49,7 @@ def main(raw_args=None):
     vec = [opt_results[i][0] for i in range(20)]
     val = [opt_results[i][1] for i in range(20)]
 
-    np.savez('results.npz',slopes=vec,bound_results=val)
+    np.savez('results5_0913.npz',slopes=vec,bound_results=val)
 
     # Plot
     # Load x-axis and POMDP data
@@ -68,8 +68,7 @@ def main(raw_args=None):
     plt.ylabel('Cumulative reward', fontsize=15)
     plt.legend(fontsize=12, loc='lower right')
     plt.ylim([0, 5.01])
-    plt.savefig('PL_n=2.svg', dpi=200)
-    plt.show() 
+    plt.savefig('PL_n=5_0913.svg', dpi=200)
 
 #################################################################
 
