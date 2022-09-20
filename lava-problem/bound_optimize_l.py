@@ -3,6 +3,7 @@ from bound_rewards_l import *
 from lava_problem import main as lava_problem
 import scipy.optimize as optimize
 import matplotlib.pyplot as plt
+from multiprocessing import Pool
 
 def main(raw_args=None):
     n = 5 # n slices on interval [0,1]
@@ -45,6 +46,7 @@ def main(raw_args=None):
     for i in range(1,tr):
         opt_result = minimize(p_correct_vals[i],s0_guesses[-1])
         opt_results.append(opt_result)
+	#s0_guesses.append(opt_result[0])
 
     vec = [opt_results[i][0] for i in range(20)]
     val = [opt_results[i][1] for i in range(20)]
