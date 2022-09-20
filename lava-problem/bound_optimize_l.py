@@ -7,7 +7,8 @@ from multiprocessing import Pool
 
 def main(raw_args=None):
     n = 5 # n slices on interval [0,1]
-    s0 = [0]*(2*n) # set initial guesses to be 0
+    # s0 = [0]*(2*n) # set initial guesses to be 0
+    s0 = [-1,-1,-1,-1,-1,1,1,1,1,1]
 
     # Setups for lava problem
     p_correct_vals = np.linspace(0.01, 0.99, 20) 
@@ -33,23 +34,30 @@ def main(raw_args=None):
         bound_f_inverse = compute_bound(l,n,svec, nx, nu, ny, T, p0, px_x, py_x, R, R0_expected) 
         return bound_f_inverse
 
-    def minimize(p_correct,svec):
-        res = optimize.minimize(bounds,svec,method = 'trust-constr', constraints = cons, callback = callbackF, args = (p_correct), options={'disp':True})
-        return[res.x, res.fun]
+    # def minimize(p_correct,svec):
+    #     res = optimize.minimize(bounds,svec,method = 'trust-constr', constraints = cons, callback = callbackF, args = (p_correct), options={'disp':True})
+    #     return[res.x, res.fun]
     
+    def minimize(p_correct):
+        res = optimize.minimize(bounds,s0,method = 'trust-constr', constraints = cons, args = (p_correct))
+        return[res.x, res.fun]
+
     tr = 20
     opt_results = []
-    s0_guesses = [s0]
+    # s0_guesses = [s0]
     opt_results.append(minimize(p_correct_vals[0],s0)) # first iteration
-    s0_guesses.append(opt_results[0][0])
+    # s0_guesses.append(opt_results[0][0])
 
-    for i in range(1,tr):
-        opt_result = minimize(p_correct_vals[i],s0_guesses[-1])
-        opt_results.append(opt_result)
-	#s0_guesses.append(opt_result[0])
+    pool = Pool(4)
+    opt_results = zip(*pool.map(minimize, p_correct_vals))
 
-    vec = [opt_results[i][0] for i in range(20)]
-    val = [opt_results[i][1] for i in range(20)]
+    # for i in range(1,tr):
+    #     opt_result = minimize(p_correct_vals[i],s0_guesses[-1])
+    #     opt_results.append(opt_result)
+    #     s0_guesses.append(opt_result[0])
+
+    vec = [opt_results[i][0] for i in range(tr)]
+    val = [opt_results[i][1] for i in range(tr)]
 
     np.savez('results5_0913.npz',slopes=vec,bound_results=val)
 
