@@ -6,7 +6,7 @@ from bound_rewards_l import l
 def main():
 
 	# Load data
-	data = np.load("results5_0913.npz")
+	data = np.load("results5_0921.npz")
 	p_correct_vals = np.load("lava_problem_optimal_results.npz")['p_correct_vals']
 	slopes = data['slopes']
 	bounds = data['bound_results']
