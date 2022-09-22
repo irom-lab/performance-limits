@@ -21,7 +21,7 @@ def main():
 			svec = slopes[i*4+j]
 			yt = [l(x,n,svec).value for x in xt]
 			ax[i,j].plot(xt,yt)
-			p = str(p_correct_vals[i*4+j])
+			p = str(i*4+j)
 			ax[i,j].set_title(p)
 			ax[i,j].set_xlabel('x')
 			ax[i,j].set_ylabel('f(x)')

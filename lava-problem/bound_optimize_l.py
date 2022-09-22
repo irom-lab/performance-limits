@@ -8,7 +8,7 @@ import ray
 def main(raw_args=None):
     n = 5 # n slices on interval [0,1]
     # s0 = [0]*(2*n) # set initial guesses to be 0
-    s0_vals = [[[-1]*5+[1]*5]*6+[-10, -5, -3, -2, -1.25, -0.83, -0.6, -0.43, -0.35, -0.28]*14]
+    s0_vals = [[-1]*5+[1]*5]*6+[[-10, -5, -3, -2, -1.25, -0.83, -0.6, -0.43, -0.35, -0.28]]*14
 
     # Setups for lava problem
     p_correct_vals = np.linspace(0.01, 0.99, 20) 
@@ -63,7 +63,7 @@ def main(raw_args=None):
     vec = [opt_results[i][0] for i in range(20)]
     val = [opt_results[i][1] for i in range(20)]
 
-    np.savez('results5_0913.npz',slopes=vec,bound_results=val)
+    np.savez('results5_0921.npz',slopes=vec,bound_results=val)
 
     # Plot
     # Load x-axis and POMDP data
@@ -82,7 +82,7 @@ def main(raw_args=None):
     plt.ylabel('Cumulative reward', fontsize=15)
     plt.legend(fontsize=12, loc='lower right')
     plt.ylim([0, 5.01])
-    plt.savefig('PL_n=5_0913.svg', dpi=200)
+    plt.savefig('PL_n=5_0921.svg', dpi=200)
 
 #################################################################
 
