@@ -1,6 +1,6 @@
 import numpy as np
 from bound_rewards_l import *
-from lava_problem import main as lava_problem
+from ../lava_problem import main as lava_problem
 import scipy.optimize as optimize
 import matplotlib.pyplot as plt
 import ray
@@ -63,14 +63,14 @@ def main(raw_args=None):
     vec = [opt_results[i][0] for i in range(20)]
     val = [opt_results[i][1] for i in range(20)]
 
-    np.savez('results5_0921.npz',slopes=vec,bound_results=val)
+    np.savez('../results/results5_0921.npz',slopes=vec,bound_results=val)
 
     # Plot
     # Load x-axis and POMDP data
-    opt_data = np.load("results/lava_problem_optimal_results.npz")
+    opt_data = np.load("../results/lava_problem_optimal_results.npz")
     opt_values = opt_data['opt_values']
 
-    tight_data = np.load("tightest_bounds.npz")
+    tight_data = np.load("../results/tightest_bounds.npz")
     tight_values = tight_data['bounds']
 
     fig, ax = plt.subplots()
@@ -82,7 +82,7 @@ def main(raw_args=None):
     plt.ylabel('Cumulative reward', fontsize=15)
     plt.legend(fontsize=12, loc='lower right')
     plt.ylim([0, 5.01])
-    plt.savefig('PL_n=5_0921.svg', dpi=200)
+    plt.savefig('../plots/PL_n=5_0921.svg', dpi=200)
 
 #################################################################
 

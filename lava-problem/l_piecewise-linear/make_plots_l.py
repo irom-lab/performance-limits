@@ -6,8 +6,8 @@ from bound_rewards_l import l
 def main():
 
 	# Load data
-	data = np.load("results5_0921.npz")
-	p_correct_vals = np.load("lava_problem_optimal_results.npz")['p_correct_vals']
+	data = np.load("../results/results5_0921.npz")
+	p_correct_vals = np.load("../results/lava_problem_optimal_results.npz")['p_correct_vals']
 	slopes = data['slopes']
 	bounds = data['bound_results']
 	n = int(np.shape(slopes)[1]/2)
@@ -23,10 +23,10 @@ def main():
 			ax[i,j].plot(xt,yt)
 			p = str(i*4+j)
 			ax[i,j].set_title(p)
-			ax[i,j].set_xlabel('x')
-			ax[i,j].set_ylabel('f(x)')
+	plt.xlabel('x')
+	plt.set_ylabel('f(x)')
 
-	plt.savefig('PL_n=5_func.svg', dpi=200)
+	plt.savefig('../plots/PL_n=5_func.svg', dpi=200)
 
 #################################################################
 
