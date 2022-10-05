@@ -43,3 +43,23 @@ To run all functions and make plots, use
 ```
 ./run.sh
 ```
+
+## Finding the tightest bounds
+To use a piecewise linear function $f$ to find the tightest upper bounds on performance, run
+```
+python bound_optimize_l.py
+```
+(On server, `conda deactivate` and use `python3`)
+
+This takes very long to run. For a new try, change 
+- $n$
+- $s_0$ 
+- `savenpz` file name
+- `savefig` file name
+in code for now.
+
+To plot the optimized piecewise-linear functions, run
+```
+python make_plots_l.py
+```
+TODO: clean up this plot

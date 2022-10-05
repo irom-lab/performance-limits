@@ -226,7 +226,7 @@ def compute_bound(nx, nu, ny, T, p0, px_x, py_x, R, R0_expected):
 	for H in range(1,T+1): # for horizon H = 1,...T
 		# Compute bound for different horizons. Use bound from H to get estimate for bound with H+1.
 		bound = compute_bound_H(nx, nu, ny, H, p0, px, px_x, py_x, R, u_seqs_all)
-		bound = bound + (T-H) # Add possible rewars from H to T
+		bound = bound + (T-H) # Add possible rewards from H to T
 		bound = bound + R0_expected # Add in expected reward from initial state
 	
 		if bound < bound_best:

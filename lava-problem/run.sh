@@ -13,9 +13,9 @@ func_list=(
 for func in "${func_list[@]}"
 do
     echo "${func}"
-    python generate_results_f.py --function ${func}
+    python3 generate_results_f.py --function ${func}
 done
 
 #python generate_results_f.py --POMDP Y
 
-python make_plots_f.py
+python3 make_plots_f.py

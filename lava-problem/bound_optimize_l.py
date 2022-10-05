@@ -1,14 +1,15 @@
 import numpy as np
 from bound_rewards_l import *
-from ../lava_problem import main as lava_problem
+from lava_problem import main as lava_problem
 import scipy.optimize as optimize
 import matplotlib.pyplot as plt
 import ray
 
+
 def main(raw_args=None):
-    n = 5 # n slices on interval [0,1]
+    n = 10 # n slices on interval [0,1]
     # s0 = [0]*(2*n) # set initial guesses to be 0
-    s0_vals = [[-1]*5+[1]*5]*6+[[-10, -5, -3, -2, -1.25, -0.83, -0.6, -0.43, -0.35, -0.28]]*14
+    s0_vals = [[-1]*10+[1]*10]*6+[[-10, -7, -5, -4, -3, -2.5, -2, -1.5, -1.25, -1, -0.83, -0.7, -0.6, -0.52, -0.43, -0.38, -0.35, -0.3, -0.28, -0.25]]*14
 
     # Setups for lava problem
     p_correct_vals = np.linspace(0.01, 0.99, 20) 
@@ -57,32 +58,32 @@ def main(raw_args=None):
 
     ''' Parallel computing '''
     ray.init()
-    futures = [minimize.remote(p_correct_vals[i], s0_vals[i]) for i in range(20)]
+    futures = [minimize.remote(p_correct_vals[i], s0_vals[i]) for i in range(15, 20)]
     opt_results = ray.get(futures)
     
-    vec = [opt_results[i][0] for i in range(20)]
-    val = [opt_results[i][1] for i in range(20)]
+    vec = [opt_results[i][0] for i in range(5)]
+    val = [opt_results[i][1] for i in range(5)]
 
-    np.savez('../results/results5_0921.npz',slopes=vec,bound_results=val)
+    np.savez('results/results5_0928.npz',slopes=vec,bound_results=val)
 
     # Plot
     # Load x-axis and POMDP data
-    opt_data = np.load("../results/lava_problem_optimal_results.npz")
+    opt_data = np.load("results/lava_problem_optimal_results.npz")
     opt_values = opt_data['opt_values']
 
-    tight_data = np.load("../results/tightest_bounds.npz")
+    tight_data = np.load("results/tightest_bounds.npz")
     tight_values = tight_data['bounds']
 
     fig, ax = plt.subplots()
     ax.plot(p_correct_vals, opt_values, '*--', label='POMDP', linewidth=0.5)
     ax.plot(p_correct_vals, tight_values, 'o--', label='Tightest', linewidth=1)
-    ax.plot(p_correct_vals, val,'o--', label='PL', linewidth=1)
+    ax.plot(p_correct_vals[15:20], val,'o--', label='PL', linewidth=1)
 
     plt.xlabel('$p_{correct}$', fontsize=15)
     plt.ylabel('Cumulative reward', fontsize=15)
     plt.legend(fontsize=12, loc='lower right')
     plt.ylim([0, 5.01])
-    plt.savefig('../plots/PL_n=5_0921.svg', dpi=200)
+    plt.savefig('plots/PL_n=5_0928.svg', dpi=200)
 
 #################################################################
 
