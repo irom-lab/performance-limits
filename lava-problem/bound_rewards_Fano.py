@@ -2,7 +2,7 @@ import numpy as np
 
 # Definition of Fano bound
 def bound_Fano(R_perp, I):
-    return -(I+np.log(1+R_perp))/np.log(1-R_perp)
+    return -(I+np.log(2-R_perp))/np.log(R_perp)
 
 def compute_Fano(nx, nu, ny, T, p0, px_x, py_x, R, R0_expected):
 	'''
