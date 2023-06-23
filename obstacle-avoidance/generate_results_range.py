@@ -86,6 +86,7 @@ for i in range(len(ranges)):
     #######################################################
     # Planning-based approach: choose primitive with largest minimum distance to detected points
     test_rewards_planning_all[i] = evaluate_planner_policy(['--verbose', str(verbose)])
+    print("Mean test reward (planning)", test_rewards_planning_all[i])
 
 
     #######################################################
@@ -105,7 +106,7 @@ for i in range(len(ranges)):
         # Evaluate policy
         print("Evaluating policy...")
         mean_test_reward = evaluate_policy(['--verbose', str(verbose)])
-        print("Mean test reward: ", mean_test_reward)
+        print("Mean test reward (learning): ", mean_test_reward)
 
         test_rewards_learning_all[i][seed] = mean_test_reward
 
