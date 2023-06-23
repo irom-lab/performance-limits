@@ -29,31 +29,34 @@ params = {
 ########## Settings ##########
 verbose = 0 # print less: 0 or more: 1
 compare_bounds = 1 # Compare with other bounds (Fano and Pinsker)
-use_hoeffding = 0
+use_hoeffding = 1
 delta_mi = 0.04
 delta_R0 = 0.01
 
 # Number of seeds for training/testing
-num_seeds = 1
+num_seeds = 5
 
-########## Noise scales ##########
-noise_scales = [0.001, 0.1, 0.2, 0.3, 0.4, 0.5] 
+########## LIDAR ranges ##########
+ranges = [0.7, 0.9, 1.1, 1.3, 1.5] 
+
+# ########## Noise scales ##########
+# noise_scales = [0.001, 0.1, 0.2, 0.3, 0.4, 0.5] 
 
 
 ########## Arrays for results ##########
-bounds = np.zeros(len(noise_scales))
-bounds_fano = np.inf*np.ones(len(noise_scales))
-bounds_pinsker = np.inf*np.ones(len(noise_scales))
-test_rewards_learning_all = [None]*len(noise_scales) # np.zeros(len(noise_scales))
-test_rewards_planning_all = np.zeros(len(noise_scales))
+bounds = np.zeros(len(ranges))
+bounds_fano = np.inf*np.ones(len(ranges))
+bounds_pinsker = np.inf*np.ones(len(ranges))
+test_rewards_learning_all = [None]*len(ranges) # np.zeros(len(ranges))
+test_rewards_planning_all = np.zeros(len(ranges))
 
-for i in range(len(noise_scales)):
+for i in range(len(ranges)):
 
-    print("Noise scale: ", noise_scales[i])
+    print("LIDAR range: ", ranges[i])
 
     # LIDAR noise std. dev.
-    noise_scale = noise_scales[i]
-    params["lidar_noise_std"] = noise_scale
+    lidar_max_distance = ranges[i]
+    params["lidar_max_distance"] = lidar_max_distance
 
     # Write params to json file
     with open("params.json", "w") as write_file:
@@ -110,6 +113,6 @@ for i in range(len(noise_scales)):
 
 
 # Save results
-np.savez("results_noise.npz", noise_scales=noise_scales, bounds=bounds, bounds_fano=bounds_fano, bounds_pinsker=bounds_pinsker, test_rewards_learning_all=test_rewards_learning_all, test_rewards_planning_all=test_rewards_planning_all)
+np.savez("results_range.npz", ranges=ranges, bounds=bounds, bounds_fano=bounds_fano, bounds_pinsker=bounds_pinsker, test_rewards_learning_all=test_rewards_learning_all, test_rewards_planning_all=test_rewards_planning_all)
 
 

@@ -12,6 +12,8 @@ dependencies:
   - yapf
   - pip
   - tqdm
+  - ipython
+  - cvxpy
   - pip:
     - jax[cuda]
     - --find-links "https://storage.googleapis.com/jax-releases/jax_releases.html"

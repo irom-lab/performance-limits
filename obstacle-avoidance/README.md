@@ -20,9 +20,7 @@ To generate all results, run:
 python generate_results.py
 ```
 
-Note: By default, the code above will use concentration inequalities to obtain high-confidence upper bounds. This requires a large number of samples. To speed things up (without obtaining high-confidence bounds), set ```use_hoeffding = 1``` in generate_results.py, and pass the option ```num_batches_MI = 1``` to compute_bound.py. 
-
-to obtain results that do not utilize 
+Note: By default, the code above will use concentration inequalities to obtain high-confidence upper bounds. This requires a large number of samples. To speed things up (without obtaining high-confidence bounds), set ```use_hoeffding = 0``` in generate_results.py, and pass the option ```num_batches_MI = 1``` to compute_bound.py. 
 
 To make plots, run:
 ```
