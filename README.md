@@ -1,6 +1,7 @@
 # Fundamental Performance Limits for Sensor-Based Robot Control and Policy Learning
 
 This repository provides code for generating results in the paper "Fundamental Limits for Sensor-Based Robot Control".
+
 Authors: Anirudha Majumdar, Zhiting Mei, and Vincent Pacelli.
 
 
